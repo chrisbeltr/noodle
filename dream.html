@@ -25,6 +25,13 @@
         .white>* {
             fill: white;
         }
+
+        a {
+            height: 100%;
+            width: 100%;
+            position: absolute;
+            z-index: 8;
+        }
     </style>
 </head>
 
@@ -1526,6 +1533,11 @@ z" />
         }
 
         setDimensions(targetPercentage);
+
+        var anchor = document.createElement("a");
+        anchor.setAttribute("href", "https://x.com/kirbsjammer/status/1847986131612168653");
+        anchor.setAttribute("target", "_blank");
+        document.body.prepend(anchor);
     </script>
 </body>
 
