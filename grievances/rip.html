@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, minimum-scale=1.0, initial-scale=1.0" />
+    <title>rip and tear</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 5px;
+        color: green;
+        font-family: monospace;
+        background-color: black;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="dup">
+      i've never wanted to rip my <span id="r">life</span>
+      <span id="opt">apart</span> more than i do at this very second
+    </div>
+    <div id="dups"></div>
+    <script>
+      const parts = [
+        ["tongue", "out"],
+        "mouth",
+        "nose",
+        ["eyes", "out"],
+        ["teeth", "out"],
+        "eyelashes",
+        "eyebrows",
+        "face",
+        "skin",
+        ["hair", "out"],
+        "scalp",
+        ["brain", "out"],
+        ["throat", "out"],
+        "head",
+        "fingers",
+        "dick",
+        "hands",
+        ["stomach", "out"],
+        ["intestines", "out"],
+        "feet",
+      ];
+      const dup = document.getElementById("dup");
+      const dups = document.getElementById("dups");
+      const r = document.getElementById("r");
+      const opt = document.getElementById("opt");
+      var prev = 0;
+      setInterval(() => {
+        dups.prepend(dup.cloneNode(true));
+        var curr;
+        do {
+          curr = Math.floor(Math.random() * parts.length);
+        } while (curr == prev);
+        prev = curr;
+        if (parts[curr] instanceof Array) {
+          r.textContent = parts[curr][0];
+          opt.textContent = parts[curr][1];
+        } else {
+          r.textContent = parts[curr];
+          opt.textContent = "off";
+        }
+      }, 125);
+    </script>
+  </body>
+</html>
