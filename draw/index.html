@@ -59,6 +59,14 @@ right click to create a burst of random emojis
 
   // ! utility functions
 
+  const DEGTORAD_A = (a) => {
+    return a * (Math.PI / 180.0);
+  };
+
+  const RADTODEG_A = (a) => {
+    return a * (180.0 / Math.PI);
+  };
+
   // create an object with the
   const CREATEO_E = (e) => {
     let s = document.createElement("span");
@@ -90,14 +98,18 @@ right click to create a burst of random emojis
     INITO_OXYDA(o, x, y, d, a);
     POSITIONO_OXY(o, x, y);
 
+    console.log(`spawno: ${o.e_a}`);
+
     let nt = performance.now() + FRAMERATE;
     let f = (step) => {
-      requestAnimationFrame(f);
       if (step > nt) {
         nt += FRAMERATE;
         if (o.e_d > 0) {
           MOVEO_O(o);
+          requestAnimationFrame(f);
         }
+      } else {
+        requestAnimationFrame(f);
       }
     };
     requestAnimationFrame(f);
@@ -110,7 +122,7 @@ right click to create a burst of random emojis
 
   // get new x position based on distance and angle
   const MOVEX_XDA = (x, d, a) => {
-    let na = Math.cos(nn.degToRad(a));
+    let na = Math.cos(DEGTORAD_A(a));
     let nd = na * d;
     let nx = x + nd;
     return nx;
@@ -118,7 +130,7 @@ right click to create a burst of random emojis
 
   // get new y position based on distance and angle
   const MOVEY_YDA = (y, d, a) => {
-    let na = Math.sin(nn.degToRad(a));
+    let na = Math.sin(DEGTORAD_A(a));
     let nd = na * d;
     let ny = y + nd;
     return ny;
@@ -142,11 +154,13 @@ right click to create a burst of random emojis
     // bounds checking
     // x axis (top and bottom)
     if (ny < 0 || ny >= height) {
+      console.log("aihwdiuw");
       o.e_a = MIRRX_A(o.e_a);
       ny = MOVEY_YDA(o.e_y, o.e_d, o.e_a);
     }
     // y axis (left and right)
     if (nx < 0 || nx >= width) {
+      console.log("uwaaaaas");
       o.e_a = MIRRY_A(o.e_a);
       nx = MOVEX_XDA(o.e_x, o.e_d, o.e_a);
     }
@@ -201,7 +215,6 @@ right click to create a burst of random emojis
     c.appendChild(o);
     INITLIGHTO_O(o);
     POSITIONO_OXY(o, e.clientX, e.clientY);
-    // .addTo(c).position(nn.mouseX, nn.mouseY);
   });
 
   // stop dragging logic
@@ -227,9 +240,11 @@ right click to create a burst of random emojis
           Math.pow(e.clientY - dragInitialY, 2),
       ) / DRAG_FACTOR;
     // finding angle from initial to mouse
-    let a = nn.radToDeg(
+    let a = RADTODEG_A(
       Math.atan2(dragInitialY - e.clientY, dragInitialX - e.clientX),
     );
+
+    console.log(`slingshot at d ${d}, a ${a}`);
 
     if (cone) {
       for (let i = 0; i < CONE_DENSITY; i++) {
@@ -237,12 +252,18 @@ right click to create a burst of random emojis
           EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
           dragInitialX,
           dragInitialY,
-          nn.random(d / 2, d),
-          a + nn.random(-CONE_SPREAD, CONE_SPREAD),
+          Math.random() * (d - d / 2) + d / 2,
+          a + (Math.random() * (CONE_SPREAD * 2) - CONE_SPREAD),
         );
       }
     } else {
-      SPAWNO_EXYDA(EMOJIS[Math.floor(Math.random() * EMOJIS.length)], dragInitialX, dragInitialY, d, a);
+      SPAWNO_EXYDA(
+        EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
+        dragInitialX,
+        dragInitialY,
+        d,
+        a,
+      );
     }
 
     //m.position(e.clientX, e.clientY);
@@ -265,10 +286,16 @@ right click to create a burst of random emojis
     burst = true;
 
     for (let i = 0; i < BURST_DENSITY; i++) {
-      let d = nn.random(MIN_DISTANCE, MAX_DISTANCE);
-      let a = nn.random(360);
+      let d = Math.random() * (MAX_DISTANCE - MIN_DISTANCE) + MIN_DISTANCE;
+      let a = Math.random() * 360;
 
-      SPAWNO_EXYDA(EMOJIS[Math.floor(Math.random() * EMOJIS.length)], dragInitialX, dragInitialY, d, a);
+      SPAWNO_EXYDA(
+        EMOJIS[Math.floor(Math.random() * EMOJIS.length)],
+        dragInitialX,
+        dragInitialY,
+        d,
+        a,
+      );
     }
 
     //l_s.position(dragInitialX, dragInitialY);
@@ -299,7 +326,6 @@ right click to create a burst of random emojis
   // mouse cursor follows when not dragging
   window.addEventListener("mousemove", (e) => {
     if (!dragging) {
-      //m.position(nn.mouseX, nn.mouseY);
       POSITIONO_OXY(m, e.clientX, e.clientY);
     }
   });
