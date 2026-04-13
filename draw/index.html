@@ -56,6 +56,8 @@ right click to create a burst of random emojis
   let draw = false;
   let width = window.innerWidth;
   let height = window.innerHeight;
+  let emojiHeight;
+  let emojiWidth;
 
   // ! utility functions
 
@@ -83,13 +85,13 @@ right click to create a burst of random emojis
     o.e_y = y;
     o.e_d = d;
     o.e_a = a;
-    o.e_h = o.clientHeight;
-    o.e_w = o.clientWidth;
+    o.e_h = emojiHeight;
+    o.e_w = emojiWidth;
   };
 
   const INITLIGHTO_O = (o) => {
-    o.e_h = o.clientHeight;
-    o.e_w = o.clientWidth;
+    o.e_h = emojiHeight;
+    o.e_w = emojiWidth;
   };
 
   const SPAWNO_EXYDA = (e, x, y, d, a) => {
@@ -97,8 +99,6 @@ right click to create a burst of random emojis
     c.appendChild(o);
     INITO_OXYDA(o, x, y, d, a);
     POSITIONO_OXY(o, x, y);
-
-    console.log(`spawno: ${o.e_a}`);
 
     let nt = performance.now() + FRAMERATE;
     let f = (step) => {
@@ -154,13 +154,11 @@ right click to create a burst of random emojis
     // bounds checking
     // x axis (top and bottom)
     if (ny < 0 || ny >= height) {
-      console.log("aihwdiuw");
       o.e_a = MIRRX_A(o.e_a);
       ny = MOVEY_YDA(o.e_y, o.e_d, o.e_a);
     }
     // y axis (left and right)
     if (nx < 0 || nx >= width) {
-      console.log("uwaaaaas");
       o.e_a = MIRRY_A(o.e_a);
       nx = MOVEX_XDA(o.e_x, o.e_d, o.e_a);
     }
@@ -186,6 +184,8 @@ right click to create a burst of random emojis
 
   let l_s = CREATEO_E("🫥");
   b.appendChild(l_s);
+  emojiHeight = l_s.clientHeight;
+  emojiWidth = l_s.clientWidth;
   INITLIGHTO_O(l_s);
   POSITIONO_OXY(l_s, 0, 0);
   let l_e = CREATEO_E("🫥");
@@ -244,7 +244,6 @@ right click to create a burst of random emojis
       Math.atan2(dragInitialY - e.clientY, dragInitialX - e.clientX),
     );
 
-    console.log(`slingshot at d ${d}, a ${a}`);
 
     if (cone) {
       for (let i = 0; i < CONE_DENSITY; i++) {
