@@ -1,5 +1,5 @@
 <!--
-    original code at https://dev.netnet.studio/?c=o&layout=dock-left
+    original code at https://dev.netnet.studio/?c=q&layout=dock-left
 -->
 
 <body draggable="false">
@@ -133,8 +133,8 @@ ctrl + z to undo, ctrl + shift + z to redo
   };
 
   const POSITIONO_OXY = (o, x, y) => {
-    o.style.top = y - o.e_h / 2;
-    o.style.left = x - o.e_w / 2;
+    o.style.top = `${y - o.e_h / 2}px`;
+    o.style.left = `${x - o.e_w / 2}px`;
   };
 
   // get new x position based on distance and angle
