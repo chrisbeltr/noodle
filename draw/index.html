@@ -6,8 +6,9 @@
   <pre id="instructions">
 click and drag to slingshot a random emoji
 hold space while slingshotting to shoot a cone of random emojis
-hold shift while dragging to just draw normally (boring)
 right click to create a burst of random emojis
+hold shift while dragging to just draw normally (boring)
+ctrl + z to undo, ctrl + shift + z to redo
   </pre>
 </body>
 <meta
@@ -37,8 +38,9 @@ right click to create a burst of random emojis
    * actions:
    * click and drag to slingshot a random emoji
    * hold space while slingshotting to shoot a cone of random emojis
-   * hold shift while dragging to just draw normally (boring)
    * right click to create a burst of random emojis
+   * hold shift while dragging to just draw normally (boring)
+   * ctrl + z to undo, ctrl + shift + z to redo
    */
 
   // ! constants
@@ -67,6 +69,9 @@ right click to create a burst of random emojis
   let height = window.innerHeight;
   let emojiHeight;
   let emojiWidth;
+  let undo = [];
+  let redo = [];
+  let buffer = [];
 
   // ! utility functions
 
@@ -96,6 +101,7 @@ right click to create a burst of random emojis
     o.e_a = a;
     o.e_h = emojiHeight;
     o.e_w = emojiWidth;
+    o.e_v = true;
   };
 
   const INITLIGHTO_O = (o) => {
@@ -108,9 +114,11 @@ right click to create a burst of random emojis
     c.appendChild(o);
     INITO_OXYDA(o, x, y, d, a);
     POSITIONO_OXY(o, x, y);
+    buffer.push(o);
 
     let nt = performance.now() + FRAMERATE;
     let f = (step) => {
+      if (!o.e_v) o.e_d = 0;
       if (step > nt) {
         nt += FRAMERATE;
         if (o.e_d > 0) {
@@ -224,16 +232,23 @@ right click to create a burst of random emojis
     c.appendChild(o);
     INITLIGHTO_O(o);
     POSITIONO_OXY(o, e.clientX, e.clientY);
+    buffer.push(o);
   });
 
   // stop dragging logic
   function onDragStop(e) {
+    let b;
     // need this here for single clicks
     if (dragging && draw) {
       let o = CREATEO_E(EMOJIS[Math.floor(Math.random() * EMOJIS.length)]);
       c.appendChild(o);
       INITLIGHTO_O(o);
       POSITIONO_OXY(o, e.clientX, e.clientY);
+      b = Array.from(buffer);
+      b.push(o);
+      undo.push(b);
+      buffer = [];
+      redo = [];
     }
 
     if (!dragging || burst || draw) {
@@ -272,6 +287,10 @@ right click to create a burst of random emojis
         a,
       );
     }
+    b = Array.from(buffer);
+    undo.push(b);
+    buffer = [];
+    redo = [];
 
     //m.position(e.clientX, e.clientY);
     POSITIONO_OXY(m, e.clientX, e.clientY);
@@ -304,6 +323,10 @@ right click to create a burst of random emojis
         a,
       );
     }
+    let a = Array.from(buffer);
+    undo.push(a);
+    buffer = [];
+    redo = [];
 
     //l_s.position(dragInitialX, dragInitialY);
     POSITIONO_OXY(l_s, dragInitialX, dragInitialY);
@@ -317,6 +340,22 @@ right click to create a burst of random emojis
       cone = true;
     } else if (e.code == "ShiftLeft" || e.code == "ShiftRight") {
       draw = true;
+    } else if (e.code == "KeyZ") {
+      if (e.ctrlKey && e.shiftKey) {
+        let r = redo.pop();
+        r.forEach((o) => {
+          o.e_v = true;
+          c.appendChild(o);
+        });
+        undo.push(r);
+      } else if (e.ctrlKey) {
+        let u = undo.pop();
+        u.forEach((o) => {
+          o.e_v = false;
+          c.removeChild(o);
+        });
+        redo.push(u);
+      }
     }
   });
 
