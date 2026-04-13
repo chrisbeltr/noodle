@@ -3,7 +3,7 @@
 -->
 
 <body draggable="false">
-  <pre style="position: absolute; margin: 0; color: lightgray">
+  <pre id="instructions">
 click and drag to slingshot a random emoji
 hold space while slingshotting to shoot a cone of random emojis
 hold shift while dragging to just draw normally (boring)
@@ -21,6 +21,15 @@ right click to create a burst of random emojis
     width: 100dvw;
     user-select: none;
     overflow: hidden;
+  }
+
+  pre {
+    position: absolute;
+    margin: 0;
+    color: lightgray;
+  }
+  pre:hover {
+    color: gray;
   }
 </style>
 <script>
@@ -243,7 +252,6 @@ right click to create a burst of random emojis
     let a = RADTODEG_A(
       Math.atan2(dragInitialY - e.clientY, dragInitialX - e.clientX),
     );
-
 
     if (cone) {
       for (let i = 0; i < CONE_DENSITY; i++) {
