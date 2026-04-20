@@ -21,6 +21,9 @@
     }
     return text.substring(left, right);
   };
+  function properNounCorrection(noun) {
+    return noun[0].toUpperCase() + noun.slice(1).toLowerCase();
+  }
 
   // ! api constants
 
@@ -119,7 +122,10 @@
     });
     let anchors = [];
     stripped.forEach((w, i) => {
-      let anchor = nn.create("a").content(words[i]).set("href", `#${w}`);
+      let anchor = nn
+        .create("a")
+        .content(words[i])
+        .set("href", `#${w.toLowerCase()}`);
       function f() {
         callback(anchor, f);
       }
@@ -135,7 +141,11 @@
     let word = new URL(anchor.href).hash.substring(1);
     console.log(word);
     let definition = await getDefinition(word);
-    if (!definition) return;
+    if (!definition) {
+      word = properNounCorrection(word);
+      definition = await getDefinition(word);
+      if (!definition) return;
+    }
     console.log("got definition");
     let html = await parseDefinition(definition, replaceWord);
     if (!html) return;
@@ -166,6 +176,7 @@
     }
     console.log("has definition");
     let a = nn.create("a").set("href", `#${word}`);
+    location.replace(a.href);
     a.addTo(cont);
     replaceWord(a);
   }
