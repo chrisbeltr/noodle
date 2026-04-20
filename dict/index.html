@@ -140,9 +140,8 @@
   async function replaceWord(anchor, f) {
     let word = new URL(anchor.href).hash.substring(1);
     console.log(word);
-    let definition = await getDefinition(word);
+    let definition = await getDefinition(properNounCorrection(word));
     if (!definition) {
-      word = properNounCorrection(word);
       definition = await getDefinition(word);
       if (!definition) return;
     }
