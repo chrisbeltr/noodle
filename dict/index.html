@@ -1,0 +1,174 @@
+<body></body>
+<script src="https://cdn.jsdelivr.net/gh/netizenorg/netnet-standard-library/build/nn.min.js"></script>
+<script>
+  // ! helpers
+
+  const isAlphaUnicode = (text) => /^\p{L}+$/u.test(text);
+  const strip = (text) => {
+    let left = 0;
+    for (let l = 0; l < text.length; l++) {
+      if (isAlphaUnicode(text[l])) {
+        left = l;
+        break;
+      }
+    }
+    let right = text.length;
+    for (let r = text.length - 1; r >= 0; r--) {
+      if (isAlphaUnicode(text[r])) {
+        right = r + 1;
+        break;
+      }
+    }
+    return text.substring(left, right);
+  };
+
+  // ! api constants
+
+  const DICTIONARY_BASE = "https://freedictionaryapi.com/api/v1/entries/en/";
+  const SENTIMENT_BASE =
+    "https://twinword-sentiment-analysis.p.rapidapi.com/analyze/?text=";
+  const SENTIMENT_OPTIONS = {
+    method: "GET",
+    headers: {
+      "x-rapidapi-key": "a27cd1553amsh1001d70238c6521p1f5c60jsn43301de0343f",
+      "x-rapidapi-host": "twinword-sentiment-analysis.p.rapidapi.com",
+      "Content-Type": "application/json",
+    },
+  };
+  //const WORD_BASE = "https://random-word-api.herokuapp.com/word";
+  const WORD_BASE =
+    "https://random-words-api.kushcreates.com/api?words=1&language=en";
+  const FSH_BASE = "https://api.fsh.plus/";
+
+  // ! api handlers
+
+  async function handleFetch(url, opts) {
+    try {
+      const response = await fetch(url, opts);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function getSentiment(text) {
+    const result = await handleFetch(SENTIMENT_BASE + text, SENTIMENT_OPTIONS);
+    if (!result) return;
+    return result.score;
+  }
+
+  async function getWord() {
+    const result = await handleFetch(WORD_BASE);
+    if (!result) return;
+    return result[0].word;
+  }
+
+  async function getDefinition(word) {
+    const result = await handleFetch(DICTIONARY_BASE + word);
+    if (!result) return;
+    if (result.entries.length == 0) return;
+    let entry = nn.random(result.entries);
+    let sense = nn.random(entry.senses);
+    let definition = sense.definition;
+    return definition;
+  }
+
+  async function transformHex(text) {
+    const result = await handleFetch(`${FSH_BASE}hex?type=encode&text=${text}`);
+    if (!result) return;
+    return result.text;
+  }
+
+  async function transformMock(text) {
+    const result = await handleFetch(`${FSH_BASE}mock?text=${text}`);
+    if (!result) return;
+    return result.text;
+  }
+
+  async function transformMorse(text) {
+    const result = await handleFetch(
+      `${FSH_BASE}morse?type=encode&text=${text}`,
+    );
+    if (!result) return;
+    return result.text;
+  }
+
+  async function transformReverse(text) {
+    const result = await handleFetch(`${FSH_BASE}reverse?text=${text}`);
+    if (!result) return;
+    return result.text;
+  }
+
+  async function transformUwu(text) {
+    const result = await handleFetch(`${FSH_BASE}uwuify?text=${text}`);
+    if (!result) return;
+    return result.text;
+  }
+
+  // ! logic
+
+  async function parseDefinition(definition, callback) {
+    let words = definition.split(" ");
+    let stripped = [];
+    words.forEach((w) => {
+      stripped.push(strip(w));
+    });
+    let anchors = [];
+    stripped.forEach((w, i) => {
+      let anchor = nn.create("a").content(words[i]).set("href", `#${w}`);
+      function f() {
+        callback(anchor, f);
+      }
+      anchor.addEventListener("click", f);
+      anchors.push(anchor);
+      anchors.push(nn.create("span").content(" "));
+    });
+    console.log(anchors);
+    return anchors;
+  }
+
+  async function replaceWord(anchor, f) {
+    let word = new URL(anchor.href).hash.substring(1);
+    console.log(word);
+    let definition = await getDefinition(word);
+    if (!definition) return;
+    console.log("got definition");
+    let html = await parseDefinition(definition, replaceWord);
+    if (!html) return;
+    console.log("parsed definition");
+    console.log(html);
+    anchor.removeEventListener("click", f);
+    anchor.innerHTML = "";
+    html.forEach((a) => {
+      anchor.appendChild(a);
+    });
+  }
+
+  // ! main
+
+  let cont = nn.create("div");
+  cont.addTo("body");
+
+  async function initial() {
+    console.log("getting initial word");
+    let word = await getWord();
+    console.log("got word " + word);
+    if (!word) return;
+    let definition = await getDefinition(word);
+    while (!definition) {
+      word = await getWord();
+      console.log("got word " + word);
+      definition = await getDefinition(word);
+    }
+    console.log("has definition");
+    let a = nn.create("a").set("href", `#${word}`);
+    a.addTo(cont);
+    replaceWord(a);
+  }
+
+  setTimeout(initial, 0);
+</script>
