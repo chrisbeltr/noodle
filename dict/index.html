@@ -168,8 +168,8 @@
     if (definitions.length == 0) return;
     let definition = nn.random(definitions);
 
-    let html = await parseDefinition(definition, replaceWord);
-    if (!html) return;
+    let anchors = await parseDefinition(definition, replaceWord);
+    if (!anchors) return;
 
     anchor.removeEventListener("click", f);
     anchor.innerHTML = "";
@@ -183,7 +183,7 @@
       "padding-left": "2px",
       "padding-right": "2px",
     });
-    html.forEach((a) => {
+    anchors.forEach((a) => {
       anchor.appendChild(a);
     });
   }
