@@ -54,8 +54,8 @@
       "Content-Type": "application/json",
     },
   };
-  //const WORD_BASE = "https://random-word-api.herokuapp.com/word";
-  const WORD_BASE =
+  const WORD_BASE = "https://random-word-api.herokuapp.com/word";
+  //const WORD_BASE =
     "https://random-words-api.kushcreates.com/api?words=1&language=en";
   const FSH_BASE = "https://api.fsh.plus/";
 
@@ -83,7 +83,7 @@
   async function getWord() {
     const result = await handleFetch(WORD_BASE);
     if (!result) return;
-    return result[0].word;
+    return result[0];
   }
 
   async function getDefinition(word) {
@@ -128,19 +128,34 @@
     return result.text;
   }
 
+  const transformFunctions = [
+    transformHex,
+    transformMock,
+    // transformMorse, // doesn't work so well :(
+    transformReverse,
+    transformUwu,
+  ];
+
   // ! logic
 
-  async function parseDefinition(definition, callback) {
-    let words = definition.split(" ");
+  async function parseDefinition(definition, callback, transform) {
+    let transformSeparator = " ";
+    if (transform == transformHex) {
+      transformSeparator = "20";
+    }
+
+    let words = (await transform(definition)).split(transformSeparator);
 
     let stripped = [];
-    words.forEach((w) => {
+    definition.split(" ").forEach((w) => {
       stripped.push(strip(w));
     });
 
     let anchors = [];
-    stripped.forEach((w, i) => {
-      let anchor = nn.create("a").content(words[i]).set("href", `#${w}`);
+    stripped.forEach(async (w, i) => {
+      let text = words[i];
+      let anchor = nn.create("a").set("href", `#${w}`);
+      anchor.innerText = text;
       function f() {
         callback(anchor, f);
       }
@@ -158,6 +173,12 @@
     let word = new URL(anchor.href).hash.substring(1);
     location.replace(`#${word.toLowerCase()}`);
 
+    let transform = async (w) => w;
+    if (silly.checked) {
+      if (nn.random(0, 100) > 50) transform = nn.random(transformFunctions);
+      // transform = nn.random(transformFunctions);
+    }
+
     let variants = [getDefinition(word)];
     if (word.toLowerCase() != word)
       variants.push(getDefinition(word.toLowerCase()));
@@ -168,7 +189,7 @@
     if (definitions.length == 0) return;
     let definition = nn.random(definitions);
 
-    let anchors = await parseDefinition(definition, replaceWord);
+    let anchors = await parseDefinition(definition, replaceWord, transform);
     if (!anchors) return;
 
     anchor.removeEventListener("click", f);
@@ -214,7 +235,11 @@
   async function initial() {
     let instructions =
       "click on any of the words to replace them with their definition.";
-    let instructionWords = await parseDefinition(instructions, replaceWord);
+    let instructionWords = await parseDefinition(
+      instructions,
+      replaceWord,
+      async (w) => w,
+    );
     let instructionsCont = nn.create("div");
     instructionWords.forEach((v) => {
       instructionsCont.appendChild(v);
