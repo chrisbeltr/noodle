@@ -143,16 +143,17 @@
   async function replaceWord(anchor, f) {
     let word = new URL(anchor.href).hash.substring(1);
     console.log(word);
-    let definition = await getDefinition(word);
-    if (!definition) {
-      definition = await await getDefinition(properNounCorrection(word));
-      location.replace(`#${properNounCorrection(word)}`);
-      if (!definition) {
-        definition = await getDefinition(word.toLowerCase());
-        location.replace(`#${word.toLowerCase()}`);
-        if (!definition) return;
-      }
-    }
+    location.replace(`#${word.toLowerCase()}`);
+    let variants = [getDefinition(word)];
+    if (word.toLowerCase() != word)
+      variants.push(getDefinition(word.toLowerCase()));
+    if (properNounCorrection(word) != word)
+      variants.push(getDefinition(properNounCorrection(word)));
+    let definitions = await Promise.all(variants);
+    definitions = definitions.filter(item => item != undefined);
+    if (definitions.length == 0) return;
+    console.log(definitions);
+    let definition = nn.random(definitions);
     console.log("got definition");
     let html = await parseDefinition(definition, replaceWord);
     if (!html) return;
