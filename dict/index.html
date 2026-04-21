@@ -150,7 +150,7 @@
     if (properNounCorrection(word) != word)
       variants.push(getDefinition(properNounCorrection(word)));
     let definitions = await Promise.all(variants);
-    definitions = definitions.filter(item => item != undefined);
+    definitions = definitions.filter((item) => item != undefined);
     if (definitions.length == 0) return;
     console.log(definitions);
     let definition = nn.random(definitions);
@@ -173,8 +173,26 @@
 
   // ! main
 
-  let cont = nn.create("div");
-  cont.addTo("body");
+  let main = nn.create("div").css({
+    display: "flex",
+    "flex-direction": "column",
+    "justify-content": "space-between",
+    "align-items": "flex-end",
+    gap: "5px",
+    height: "100%",
+    "max-height": "100%",
+  });
+  main.addTo("body");
+
+  let cont = nn.create("div").css({ overflow: "auto", width: "100%" });
+  cont.addTo(main);
+
+  let sillyCont = nn.create("div");
+  sillyCont.addTo(main);
+  let silly = nn.create("input").set({ type: "checkbox", id: "silly" });
+  silly.addTo(sillyCont);
+  let sillyLabel = nn.create("label").set("for", "silly").content("silly mode");
+  sillyLabel.addTo(sillyCont);
 
   async function initial() {
     console.log("getting initial word");
