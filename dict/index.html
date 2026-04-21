@@ -1,4 +1,8 @@
 <body></body>
+<style>
+  a {
+  }
+</style>
 <script src="https://cdn.jsdelivr.net/gh/netizenorg/netnet-standard-library/build/nn.min.js"></script>
 <script>
   // ! helpers
@@ -127,6 +131,7 @@
         callback(anchor, f);
       }
       anchor.addEventListener("click", f);
+      anchor.css({ color: "black", "text-decoration": "none" });
       anchors.push(anchor);
       anchors.push(nn.create("span").content(" "));
     });
@@ -159,7 +164,7 @@
     let s = nn.random(70, 100);
     let l = nn.random(80, 100);
     let c = nn.hsl(h, s, l);
-    anchor.css({"background-color": c});
+    anchor.css({ "background-color": c, "text-decoration": "none" });
     html.forEach((a) => {
       anchor.appendChild(a);
     });
