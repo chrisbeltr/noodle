@@ -1,12 +1,9 @@
 <body></body>
-<style>
-  a {
-  }
-</style>
 <script src="https://cdn.jsdelivr.net/gh/netizenorg/netnet-standard-library/build/nn.min.js"></script>
 <script>
   // ! helpers
 
+  // https://stackoverflow.com/questions/6067592/regular-expression-to-match-only-alphabetic-characters
   const isAlphaUnicode = (text) => /^\p{L}+$/u.test(text);
   const strip = (text) => {
     let left = 0;
@@ -25,9 +22,11 @@
     }
     return text.substring(left, right);
   };
-  function properNounCorrection(noun) {
-    return noun[0].toUpperCase() + noun.slice(1).toLowerCase();
-  }
+  const toProperNoun = (noun) =>
+    noun[0].toUpperCase() + noun.slice(1).toLowerCase();
+  // adapted from https://stackoverflow.com/questions/5731863/mapping-a-numeric-range-onto-another
+  const mapRange = (v, inMin, inMax, outMin, outMax) =>
+    ((v - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
 
   // ! api constants
 
@@ -120,10 +119,12 @@
 
   async function parseDefinition(definition, callback) {
     let words = definition.split(" ");
+
     let stripped = [];
     words.forEach((w) => {
       stripped.push(strip(w));
     });
+
     let anchors = [];
     stripped.forEach((w, i) => {
       let anchor = nn.create("a").content(words[i]).set("href", `#${w}`);
@@ -135,30 +136,28 @@
       anchors.push(anchor);
       anchors.push(nn.create("span").content(" "));
     });
-    console.log(anchors);
     anchors.pop();
+
     return anchors;
   }
 
   async function replaceWord(anchor, f) {
     let word = new URL(anchor.href).hash.substring(1);
-    console.log(word);
     location.replace(`#${word.toLowerCase()}`);
+
     let variants = [getDefinition(word)];
     if (word.toLowerCase() != word)
       variants.push(getDefinition(word.toLowerCase()));
-    if (properNounCorrection(word) != word)
-      variants.push(getDefinition(properNounCorrection(word)));
+    if (toProperNoun(word) != word)
+      variants.push(getDefinition(toProperNoun(word)));
     let definitions = await Promise.all(variants);
     definitions = definitions.filter((item) => item != undefined);
     if (definitions.length == 0) return;
-    console.log(definitions);
     let definition = nn.random(definitions);
-    console.log("got definition");
+
     let html = await parseDefinition(definition, replaceWord);
     if (!html) return;
-    console.log("parsed definition");
-    console.log(html);
+
     anchor.removeEventListener("click", f);
     anchor.innerHTML = "";
     let h = nn.random(0, 360);
@@ -195,17 +194,13 @@
   sillyLabel.addTo(sillyCont);
 
   async function initial() {
-    console.log("getting initial word");
     let word = await getWord();
-    console.log("got word " + word);
     if (!word) return;
     let definition = await getDefinition(word);
     while (!definition) {
       word = await getWord();
-      console.log("got word " + word);
       definition = await getDefinition(word);
     }
-    console.log("has definition");
     let a = nn.create("a").set("href", `#${word}`);
     location.replace(a.href);
     a.addTo(cont);
