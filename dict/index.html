@@ -27,6 +27,19 @@
   // adapted from https://stackoverflow.com/questions/5731863/mapping-a-numeric-range-onto-another
   const mapRange = (v, inMin, inMax, outMin, outMax) =>
     ((v - inMin) * (outMax - outMin)) / (inMax - inMin) + outMin;
+  const sentimentRange = (sent) => {
+    let rh = 0;
+    let gh = 128;
+
+    let h = 0;
+    let s = 100;
+    let l = mapRange(Math.abs(sent), 0, 1, 100, 70);
+
+    if (sent < 0) h = rh;
+    else h = gh;
+
+    return nn.hsl(h, s, l);
+  };
 
   // ! api constants
 
@@ -160,11 +173,16 @@
 
     anchor.removeEventListener("click", f);
     anchor.innerHTML = "";
-    let h = nn.random(0, 360);
-    let s = nn.random(70, 100);
-    let l = nn.random(80, 100);
-    let c = nn.hsl(h, s, l);
-    anchor.css({ "background-color": c, "text-decoration": "none" });
+    let sentiment = nn.random(-1, 1);
+    let c = sentimentRange(sentiment);
+    anchor.css({
+      "background-color": c,
+      "text-decoration": "none",
+      "border-left": "1px dotted black",
+      "border-right": "1px dotted black",
+      "padding-left": "2px",
+      "padding-right": "2px",
+    });
     html.forEach((a) => {
       anchor.appendChild(a);
     });
@@ -198,7 +216,6 @@
       "click on any of the words to replace them with their definition.";
     let instructionWords = await parseDefinition(instructions, replaceWord);
     let instructionsCont = nn.create("div");
-    console.log(instructionWords);
     instructionWords.forEach((v) => {
       instructionsCont.appendChild(v);
     });
