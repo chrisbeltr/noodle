@@ -55,8 +55,7 @@
     },
   };
   const WORD_BASE = "https://random-word-api.herokuapp.com/word";
-  //const WORD_BASE =
-    "https://random-words-api.kushcreates.com/api?words=1&language=en";
+  //const WORD_BASE = "https://random-words-api.kushcreates.com/api?words=1&language=en";
   const FSH_BASE = "https://api.fsh.plus/";
 
   // ! api handlers
@@ -194,8 +193,17 @@
 
     anchor.removeEventListener("click", f);
     anchor.innerHTML = "";
-    let sentiment = nn.random(-1, 1);
+    let sentiment = await getSentiment(definition);
     let c = sentimentRange(sentiment);
+    if (Math.abs(sentiment) < 0.05) {
+      let h = nn.random(0, 360);
+      while ((h > 70 && h < 150) || h < 20 || h > 345) {
+        h = nn.random(0, 360);
+      }
+      let s = nn.random(90, 100);
+      let l = nn.random(70, 85);
+      c = nn.hsl(h, s, l);
+    }
     anchor.css({
       "background-color": c,
       "text-decoration": "none",
@@ -233,8 +241,16 @@
   sillyLabel.addTo(sillyCont);
 
   async function initial() {
+    let word = await getWord();
+    if (!word) return;
+    let definition = await getDefinition(word);
+    while (!definition) {
+      word = await getWord();
+      definition = await getDefinition(word);
+    }
+
     let instructions =
-      "click on any of the words to replace them with their definition.";
+      "click on any word to replace it with its definition. each definition will be rated based on its sentiment (whether it's more positive or negative). a green background means positive and a red background means negative, with the extremes of the scale having darker colors. if a definition is deemed neutral, it will be a random color.";
     let instructionWords = await parseDefinition(
       instructions,
       replaceWord,
@@ -247,13 +263,18 @@
     instructionsCont.addTo(cont);
     cont.appendChild(nn.create("br"));
 
-    let word = await getWord();
-    if (!word) return;
-    let definition = await getDefinition(word);
-    while (!definition) {
-      word = await getWord();
-      definition = await getDefinition(word);
-    }
+    let wordText = `your word is: ${word}`;
+    let wordTextParsed = await parseDefinition(
+      wordText,
+      replaceWord,
+      async (w) => w,
+    );
+    let wordCont = nn.create("div");
+    wordTextParsed.forEach((v) => {
+      wordCont.appendChild(v);
+    });
+    wordCont.addTo(cont);
+
     let a = nn.create("a").set("href", `#${word}`);
     location.replace(a.href);
     a.addTo(cont);
