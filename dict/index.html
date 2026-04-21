@@ -122,10 +122,7 @@
     });
     let anchors = [];
     stripped.forEach((w, i) => {
-      let anchor = nn
-        .create("a")
-        .content(words[i])
-        .set("href", `#${w.toLowerCase()}`);
+      let anchor = nn.create("a").content(words[i]).set("href", `#${w}`);
       function f() {
         callback(anchor, f);
       }
@@ -134,16 +131,22 @@
       anchors.push(nn.create("span").content(" "));
     });
     console.log(anchors);
+    anchors.pop();
     return anchors;
   }
 
   async function replaceWord(anchor, f) {
     let word = new URL(anchor.href).hash.substring(1);
     console.log(word);
-    let definition = await getDefinition(properNounCorrection(word));
+    let definition = await getDefinition(word);
     if (!definition) {
-      definition = await getDefinition(word);
-      if (!definition) return;
+      definition = await await getDefinition(properNounCorrection(word));
+      location.replace(`#${properNounCorrection(word)}`);
+      if (!definition) {
+        definition = await getDefinition(word.toLowerCase());
+        location.replace(`#${word.toLowerCase()}`);
+        if (!definition) return;
+      }
     }
     console.log("got definition");
     let html = await parseDefinition(definition, replaceWord);
