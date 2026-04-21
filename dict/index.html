@@ -194,6 +194,17 @@
   sillyLabel.addTo(sillyCont);
 
   async function initial() {
+    let instructions =
+      "click on any of the words to replace them with their definition.";
+    let instructionWords = await parseDefinition(instructions, replaceWord);
+    let instructionsCont = nn.create("div");
+    console.log(instructionWords);
+    instructionWords.forEach((v) => {
+      instructionsCont.appendChild(v);
+    });
+    instructionsCont.addTo(cont);
+    cont.appendChild(nn.create("br"));
+
     let word = await getWord();
     if (!word) return;
     let definition = await getDefinition(word);
