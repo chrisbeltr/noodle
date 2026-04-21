@@ -54,8 +54,8 @@
       "Content-Type": "application/json",
     },
   };
-  const WORD_BASE = "https://random-word-api.herokuapp.com/word";
-  //const WORD_BASE = "https://random-words-api.kushcreates.com/api?words=1&language=en";
+  //const WORD_BASE = "https://random-word-api.herokuapp.com/word";
+  const WORD_BASE = "https://random-words-api.kushcreates.com/api?words=1&language=en";
   const FSH_BASE = "https://api.fsh.plus/";
 
   // ! api handlers
@@ -82,7 +82,7 @@
   async function getWord() {
     const result = await handleFetch(WORD_BASE);
     if (!result) return;
-    return result[0];
+    return result[0].word;
   }
 
   async function getDefinition(word) {
