@@ -1,0 +1,256 @@
+<body></body>
+<script src="https://cdn.jsdelivr.net/gh/netizenorg/netnet-standard-library/build/nn.min.js"></script>
+<script>
+  async function setup() {
+    // lower this if laggy or slow
+    const csize = 600;
+    // raise this if the image is on top of any of the geometry (otherwise it will not be included in the shader)
+    const wait = 200;
+    // if you want the kernels to be in the correct order, set this to false
+    const shuffle = true;
+    // this is the width of the xray square
+    const xray = 100;
+    // debug
+    const factor = 1;
+    const coordtoidx = (x, y) => y * csize + x;
+
+    let body = nn.get("body");
+    body.css("margin", 0);
+
+    let under = nn.create("canvas").position(0, 0).resize(csize, csize);
+    let over = nn.create("canvas").position(0, 0).resize(csize, csize);
+
+    under.addTo("body");
+    under.strokeStyle = "transparent";
+    under.fillStyle = "white";
+    under.rect(0, 0, csize, csize);
+
+    under.scale(factor, factor);
+    const b64 =
+      "data:image/webp;base64,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";
+    let r = await fetch(b64);
+    let b = await r.blob();
+    let img = URL.createObjectURL(b);
+    under.drawImage(img, 100, 100, csize - 200, csize - 200);
+
+    setTimeout(() => {
+      under.strokeStyle = "blue";
+      under.fillStyle = "transparent";
+      under.lineWidth = csize / 20;
+      under.circle(
+        csize / 2,
+        csize / 2,
+        Math.min((csize - under.lineWidth) / 2, (csize - under.lineWidth) / 2),
+      );
+      under.strokeStyle = "red";
+      under.rect(
+        csize / 2 - 50,
+        csize / 2 - 50,
+        csize / 2 - under.lineWidth / 2 - 50,
+        csize / 2 - under.lineWidth / 2 - 50,
+      );
+      under.strokeStyle = "green";
+      under.line(0, 0, csize / 2, csize / 4);
+      under.line(csize / 2, csize / 4, csize / 3, (csize * 3) / 4);
+      under.line(csize / 3, (csize * 3) / 4, 0, 0);
+
+      console.log("drew under");
+
+      over.addTo("body");
+      over.strokeStyle = "transparent";
+      over.fillStyle = "transparent";
+      //over.rect(0, 0, csize, csize);
+
+      console.log("starting over");
+
+      over.scale(factor, factor);
+      let orig = under.getPixels();
+      let mod = over.getPixels();
+      let centerMult = 30;
+      let sumavg = csize + csize + centerMult - 1;
+      let ksize = Math.floor(Math.min(csize, csize) / 4);
+      //let ksize = 100;
+      function m() {
+        self.onmessage = function avg(e) {
+          let wl = e.data.l;
+          let wt = e.data.t;
+          let wr = e.data.r;
+          let wb = e.data.b;
+          let wh = e.data.h;
+          let ww = e.data.w;
+          let wsumavg = e.data.sumavg;
+          let wmult = e.data.mult;
+          let wcoordtoidx = (x, y) => y * ww + x;
+          let worig = e.data.orig;
+          let shuffle = e.data.shuffle;
+          let wmod;
+          if (shuffle) wmod = [];
+          else wmod = e.data.mod;
+          //console.log(`${wl}, ${wt}, ${wr}, ${wb}, ${ww}, ${wh}`);
+          for (let y = wt; y < Math.min(wb, wh); y++) {
+            for (let x = wl; x < Math.min(wr, ww); x++) {
+              let curr = wcoordtoidx(x, y);
+              let sumr = 0;
+              let sumg = 0;
+              let sumb = 0;
+              for (let ky = 0; ky < wh; ky++) {
+                let kcurr = wcoordtoidx(x, ky);
+                let mult = ky == y ? wmult : 1;
+                sumr += worig[kcurr].r * mult;
+                sumg += worig[kcurr].g * mult;
+                sumb += worig[kcurr].b * mult;
+              }
+              for (let kx = 0; kx < ww; kx++) {
+                let kcurr = wcoordtoidx(kx, y);
+                let mult = kx == y ? wmult : 1;
+                sumr += worig[kcurr].r * mult;
+                sumg += worig[kcurr].g * mult;
+                sumb += worig[kcurr].b * mult;
+              }
+              /*
+              for (let ky = 0; ky < kernelHeight; ky++) {
+                for (let kx = 0; kx < kernelWidth; kx++) {
+                  let kcurr = coordtoidx(
+                    (x + kernelLeft + w) % w,
+                    (y + kernelTop + h) % h,
+                  );
+                  sumr += orig[kcurr].r * weights[kernelWidth * ky + kx];
+                  sumg += orig[kcurr].g * weights[kernelWidth * ky + kx];
+                  sumb += orig[kcurr].b * weights[kernelWidth * ky + kx];
+                  kernelLeft++;
+                }
+                kernelLeft -= kernelHeight;
+                kernelTop++;
+              }
+              */
+              // new pixel
+              sumr /= wsumavg;
+              sumg /= wsumavg;
+              sumb /= wsumavg;
+
+              if (shuffle) {
+                let cobj = {};
+                cobj.r = sumr;
+                cobj.g = sumg;
+                cobj.b = sumb;
+                cobj.a = 255;
+                wmod.push(cobj);
+              } else {
+                wmod[curr].r = sumr;
+                wmod[curr].g = sumg;
+                wmod[curr].b = sumb;
+                wmod[curr].a = 255;
+              }
+            }
+          }
+          self.postMessage(wmod);
+          self.close();
+        };
+      }
+
+      let wneeded = 0;
+      let wcounter = nn
+        .create("div")
+        .addTo("body")
+        .css({ position: "relative", zIndex: "1", pointerEvents: "none" })
+        .content("workers: 0/0");
+      let dcounter = nn
+        .create("div")
+        .addTo("body")
+        .css({ position: "relative", zIndex: "1", pointerEvents: "none" })
+        .content("done: 0");
+      let workers = 0;
+      let done = 0;
+
+      // same script worker stuff found here:
+      // https://deebloo.medium.com/make-multithreading-easier-with-inline-web-workers-a58723428a42
+      let mods = [mod];
+      let currTop = 0;
+      let currLeft = 0;
+      const blob = new Blob([`(${m.toString()})()`], {
+        type: "application/javascript",
+      });
+      const workerUrl = URL.createObjectURL(blob);
+      async function createWorker(x, y) {
+        const worker = new Worker(workerUrl);
+        worker.onmessage = (e) => {
+          if (shuffle) {
+            for (let y = 0; y < ksize; y++) {
+              if (currTop + y >= csize) break;
+              for (let x = 0; x < ksize; x++) {
+                if (currLeft + x >= csize) break;
+                let data = e.data[y * ksize + x];
+                mod[coordtoidx(currLeft + x, currTop + y)] = data
+                  ? data
+                  : { r: 0, g: 0, b: 0, a: 0 };
+              }
+            }
+            currLeft += ksize;
+            if (currLeft >= csize) {
+              currLeft = 0;
+              currTop += ksize;
+            }
+          } else {
+            mods.push(e.data);
+            mod = mods[0].map((_, i) => {
+              const valuesAtIndex = mods.map((a) => a[i]);
+              return (
+                valuesAtIndex.find((val) => val.a != 0) || {
+                  r: 0,
+                  g: 0,
+                  b: 0,
+                  a: 0,
+                }
+              );
+            });
+          }
+
+          over.setPixels(mod);
+          done++;
+          dcounter.content(`done: ${done}/${wneeded}`);
+          if (done == wneeded) {
+            mods = null;
+          }
+        };
+        let msg = {
+          l: x,
+          t: y,
+          r: x + ksize,
+          b: y + ksize,
+          sumavg: sumavg,
+          mult: centerMult,
+          w: csize,
+          h: csize,
+          orig: orig,
+          shuffle: shuffle,
+        };
+        if (!shuffle) {
+          msg.mod = mod;
+        }
+        worker.postMessage(msg);
+        workers++;
+        wcounter.content(`workers: ${workers}/${wneeded}`);
+      }
+
+      for (let y = 0; y <= csize - ksize; y += ksize) {
+        for (let x = 0; x <= csize - ksize; x += ksize) {
+          setTimeout(() => {
+            createWorker(x, y);
+          }, 0);
+          wneeded++;
+          dcounter.content(`done: ${done}/${wneeded}`);
+        }
+      }
+
+      over.addEventListener("mousemove", (e) => {
+        over.setPixels(mod);
+        over.clearRect(e.clientX - xray / 2, e.clientY - xray / 2, xray, xray);
+      });
+      over.addEventListener("mouseleave", () => {
+        over.setPixels(mod);
+      });
+    }, wait);
+  }
+
+  setTimeout(setup, 0);
+</script>
