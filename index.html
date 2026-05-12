@@ -1,3 +1,4 @@
+<!-- 400 lines let's go -->
 <!doctype html>
 <html lang="en">
   <head>
@@ -7,7 +8,6 @@
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Iosevka+Charon+Mono:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap");
 
-      /* normalization */
       *,
       *::after,
       *::before {
@@ -21,7 +21,6 @@
         width: 100%;
       }
 
-      /* common */
       body, h1, h2, h3, span, a, p {
         font-family: "Iosevka Charon Mono", "Times New Roman", Times, serif;
         margin: 0;
@@ -34,7 +33,6 @@
         color: white;
       }
 
-      /* modifiers */
       .invert {
         color: white !important;
         mix-blend-mode: difference;
@@ -43,7 +41,6 @@
         text-wrap: nowrap;
       }
 
-      /* main */
       body {
         position: relative;
         padding: 5px;
@@ -52,13 +49,11 @@
         flex-direction: column;
         align-items: center;
       }
-      .container,
-      .blurbs {
+      .container, .blurbs, .links-container {
         width: 100%;
         max-width: 1200px;
       }
 
-      /* definition */
       .def {
         position: relative;
         display: flex;
@@ -84,11 +79,10 @@
         font-size: 1.5rem;
       }
 
-      /* blurbs */
       .blurb-header {
         font-size: 3rem;
         font-weight: 600;
-        margin-top: 35px;
+        margin-top: 30px;
       }
       .blurb-paragraph {
         font-size: 1.5rem;
@@ -119,6 +113,32 @@
         .no-mobile {
           display: none;
         }
+      }
+      li {
+        font-size: 1.5rem;
+      }
+
+      .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+      .link-header {
+        font-size: 3rem;
+        font-weight: 600;
+        margin: 30px 0 10px;
+      }
+      .link {
+        font-size: 1.5rem;
+        flex: 0 0 0;
+        padding: 20px 50px;
+        border-radius: 10px;
+        border: 3px solid transparent;
+        display: flex;
+        align-items: center;
+      }
+      .link:hover {
+        border: 3px solid white;
       }
     </style>
     <script src="https://cdn.jsdelivr.net/gh/netizenorg/netnet-standard-library/build/nn.min.js"></script>
@@ -194,6 +214,11 @@
         </tr>
       </table>
     </div>
+    <div class="links-container">
+      <h2 class="link-header invert">all projects</h2>
+      <div class="links invert"><a href="./10print/index.html" class="link">10print</a><a href="./canvas/index.html" class="link">canvas blur</a><a href="./cove/index.html" class="link">unusual cove</a><a href="./dict/index.html" class="link">recursive dict</a><a href="./draw/index.html" class="link">emoji draw</a><a href="./os/index.html" class="link">operating system</a><a href="./poster/index.html" class="link">poster</a><a href="./presentation/index.html" class="link">presentation</a><a href="./signs/index.html" class="link">signs</a><a href="./still/index.html" class="link">still life</a><a href="./webgems/index.html" class="link">webgems</a><a href="./dream.html" class="link">dream</a><a href="./rip.html" class="link">rip</a><a href="./rotting.html" class="link">rotting</a><a href="./waterfall.html" class="link">waterfall</a></div>
+    </div>
+    <p class="blurb-paragraph invert" style="margin: 5px 0">© 2026 | <a href="https://github.com/chrisbeltr/noodle" class="invert">github</a></p>
     <script>
       nn.on("load", () => {
         document.getElementById("10print-code").textContent = start10print.toString();
